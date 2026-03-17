@@ -2,6 +2,7 @@ from typing import List, Dict
 from playwright.sync_api import sync_playwright
 from app.scrapers.base import BaseScraper
 import time
+import random
 
 class TicketmasterAUScraper(BaseScraper):
     def search_artist(self, artist_name: str, keywords: List[str]) -> List[Dict]:
@@ -14,13 +15,27 @@ class TicketmasterAUScraper(BaseScraper):
         
         try:
             with sync_playwright() as p:
-                browser = p.chromium.launch(headless=True)
-                # Using a custom user-agent to reduce detection
-                context = browser.new_context(
-                    user_agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36"
+                browser = p.chromium.launch(
+                    headless=True,
+                    args=['--disable-http2', '--no-sandbox']
                 )
+                
+                context = browser.new_context(
+                    user_agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                    viewport={'width': 1280, 'height': 800}
+                )
+                
                 page = context.new_page()
-                page.goto(url, timeout=60000)
+                
+                # Visit home first for cookies/session
+                try:
+                    page.goto("https://www.ticketmaster.com.au/", timeout=30000, wait_until="domcontentloaded")
+                    time.sleep(random.uniform(1, 2))
+                except:
+                    pass
+                
+                page.goto(url, timeout=60000, wait_until="domcontentloaded")
+                time.sleep(random.uniform(2, 4))
                 
                 # Check for "no results"
                 if "No results found" in page.content():
@@ -28,42 +43,46 @@ class TicketmasterAUScraper(BaseScraper):
                     browser.close()
                     return []
 
-                # Wait for event items. Ticketmaster AU uses different selectors occasionally.
-                # Try common ones.
+                # Wait for event items
                 try:
                     page.wait_for_selector('div[data-testid="event-list-item"], .event-listing__item', timeout=10000)
                 except:
-                    # If selector doesn't appear, maybe no events found or blocked
-                    self.logger.warning(f"Timeout waiting for Ticketmaster AU results for {search_term}")
-                    browser.close()
-                    return []
+                    # Generic link discovery if selector fails
+                    pass
 
                 # Extract event cards
-                items = page.query_selector_all('div[data-testid="event-list-item"], .event-listing__item')
+                items = page.query_selector_all('div[data-testid="event-list-item"], .event-listing__item, a[href*="/event/"]')
                 
-                for item in items[:10]:
+                seen_urls = set()
+                for item in items[:15]:
                     try:
                         title_el = item.query_selector('span[data-testid="event-name"], .event-listing__title')
-                        date_el = item.query_selector('span[data-testid="event-date"], .event-listing__date')
-                        link_el = item.query_selector('a[href*="/event/"], a[href*="/artist/"]')
-                        venue_el = item.query_selector('span[data-testid="venue-name"], .event-listing__venue')
-                        
-                        if title_el and link_el:
-                            title = title_el.inner_text()
-                            link = link_el.get_attribute('href')
-                            if link and not link.startswith('http'):
-                                link = "https://www.ticketmaster.com.au" + link
+                        if not title_el and item.tag_name() == 'a':
+                            title_el = item
                             
-                            # Validate title against keywords
-                            if any(k.lower() in title.lower() for k in keywords):
-                                results.append({
-                                    "title": title,
-                                    "date": date_el.inner_text() if date_el else "Check Website",
-                                    "venue": venue_el.inner_text() if venue_el else "Unknown Venue",
-                                    "city": "Australia",
-                                    "url": link,
-                                    "source": "Ticketmaster AU"
-                                })
+                        link_el = item.query_selector('a[href*="/event/"], a[href*="/artist/"]')
+                        if not link_el and item.tag_name() == 'a':
+                            link_el = item
+                            
+                        if title_el and link_el:
+                            title = title_el.inner_text().strip().split('\n')[0]
+                            link = link_el.get_attribute('href')
+                            
+                            if link and link not in seen_urls:
+                                if not link.startswith('http'):
+                                    link = "https://www.ticketmaster.com.au" + link
+                                
+                                # Validate title against keywords
+                                if any(k.lower() in title.lower() for k in keywords):
+                                    results.append({
+                                        "title": title[:100],
+                                        "date": "Check Website",
+                                        "venue": "Australia",
+                                        "city": "Australia",
+                                        "url": link,
+                                        "source": "Ticketmaster AU"
+                                    })
+                                    seen_urls.add(link)
                     except Exception as e:
                         continue
                         
@@ -83,22 +102,24 @@ class TicketmasterAUScraper(BaseScraper):
         
         try:
             with sync_playwright() as p:
-                browser = p.chromium.launch(headless=True)
+                browser = p.chromium.launch(
+                    headless=True,
+                    args=['--disable-http2']
+                )
                 context = browser.new_context(
-                    user_agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36"
+                    user_agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
                 )
                 page = context.new_page()
-                page.goto(url, timeout=60000)
+                page.goto(url, timeout=60000, wait_until="domcontentloaded")
+                time.sleep(random.uniform(2, 4))
                 
                 # Wait for discovery links or event cards
                 try:
-                    page.wait_for_selector('a[href*="/event/"], div[data-testid="event-list-item"]', timeout=10000)
-                    
                     # Try to find items that look like events
                     items = page.query_selector_all('a[href*="/event/"], div[data-testid="event-list-item"]')
                     
                     seen_urls = set()
-                    for item in items[:25]:
+                    for item in items[:30]:
                         try:
                             # Extract link
                             if item.tag_name() == 'a':
@@ -114,7 +135,7 @@ class TicketmasterAUScraper(BaseScraper):
                             text = item.inner_text().strip()
                             title = text.split('\n')[0][:100]
                             
-                            if title:
+                            if title and len(title) > 3:
                                 full_url = link_attr if link_attr.startswith('http') else "https://www.ticketmaster.com.au" + link_attr
                                 results.append({
                                     "title": title,
