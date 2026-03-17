@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Concert Monitor</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { padding-top: 20px; }
+        .concert-card { margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="index.html">Concert Monitor</a>
+                <div class="collapse navbar-collapse">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link" href="index.html">Dashboard</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Artists</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        
+            
+        
+
+        
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Upcoming Concerts</h2>
+    <a href="#" class="btn btn-warning">Check for Updates Now</a>
+</div>
+
+<div class="row">
+    
+    
+    <div class="col-md-4">
+        <div class="card concert-card">
+            <div class="card-body">
+                <h5 class="card-title">
+                    Global Discovery
+                    
+                        <span class="badge bg-info text-dark">Trending</span>
+                    
+                </h5>
+                <h6 class="card-subtitle mb-2 text-muted">Lady Gaga: The Chromatica Ball</h6>
+                <p class="card-text">
+                    <strong>Date:</strong> 2026-12-01<br>
+                    <strong>Venue:</strong> Marvel Stadium, Melbourne<br>
+                    <strong>Source:</strong> MockDiscovery
+                </p>
+                <a href="https://mock-ticket.com/lady-gaga:-the-chromatica-ball" target="_blank" class="card-link">View Details</a>
+            </div>
+            <div class="card-footer text-muted">
+                Found: 2026-03-17
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card concert-card">
+            <div class="card-body">
+                <h5 class="card-title">
+                    Eason Chan
+                    
+                </h5>
+                <h6 class="card-subtitle mb-2 text-muted">Eason Chan World Tour 2026</h6>
+                <p class="card-text">
+                    <strong>Date:</strong> 2026-11-15<br>
+                    <strong>Venue:</strong> Rod Laver Arena, Melbourne<br>
+                    <strong>Source:</strong> MockSource
+                </p>
+                <a href="https://mock-ticket.com/eason-chan" target="_blank" class="card-link">View Details</a>
+            </div>
+            <div class="card-footer text-muted">
+                Found: 2026-03-17
+            </div>
+        </div>
+    </div>
+    
+</div>
+
+<hr class="my-5">
+
+<h3>System Logs</h3>
+<table class="table table-sm table-hover">
+    <thead>
+        <tr>
+            <th>Time</th>
+            <th>Level</th>
+            <th>Message</th>
+        </tr>
+    </thead>
+    <tbody>
+        
+        <tr class="">
+            <td>2026-03-17 06:40:54</td>
+            <td>INFO</td>
+            <td>Found 1 new concerts for Global Discovery</td>
+        </tr>
+        
+        <tr class="">
+            <td>2026-03-17 06:40:37</td>
+            <td>INFO</td>
+            <td>Found 1 new concerts for Eason Chan</td>
+        </tr>
+        
+    </tbody>
+</table>
+
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
