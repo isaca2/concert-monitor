@@ -27,5 +27,21 @@ Your Concert Monitor is now configured to run automatically on GitHub Actions!
 3.  **Grant Workflow Permissions:**
     Go to **Settings > Actions > General**. Under "Workflow permissions", select **"Read and write permissions"** and click **Save**. This allows the action to commit the database changes.
 
-## Manual Run:
-You can trigger a check anytime by going to the **Actions** tab on GitHub, selecting "Concert Monitor Scrape", and clicking **"Run workflow"**.
+## Auto-Deployment (Web Dashboard)
+
+To make your web dashboard accessible online and auto-update whenever a new concert is found:
+
+1.  **Create a [Render](https://render.com) Account.**
+2.  **Click "New" > "Blueprint".**
+3.  **Connect your GitHub Repository.**
+4.  Render will automatically find the `render.yaml` file and set up your web service.
+5.  **Set Environment Variables:**
+    In the Render dashboard for your service, go to **Environment** and add:
+    - `SMTP_SERVER`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `RECIPIENT_EMAIL` (Same as GitHub Secrets).
+
+### How the "Poor Man's Sync" Works:
+1.  **GitHub Action** runs the scraper -> Updates `instance/concerts.db` -> **Pushes** back to GitHub.
+2.  **Render** sees the new push -> **Auto-deploys** your web app.
+3.  The new web app now has the updated database with the latest concerts!
+
+*Note: Since the database is stored in the Git repo, if you add an artist on the **deployed website**, it will work temporarily but will be **overwritten** the next time the scraper runs and pushes. For permanent artist changes, add them in your **local** app and push.*
