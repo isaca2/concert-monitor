@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Upcoming Concerts</h2>
+    <a href="{{ url_for('scrape_now') }}" class="btn btn-warning">Check for Updates Now</a>
+</div>
+
+<div class="row">
+    {% if not concerts %}
+        <p class="text-muted">No concerts detected yet.</p>
+    {% endif %}
+    {% for concert in concerts %}
+    <div class="col-md-4">
+        <div class="card concert-card">
+            <div class="card-body">
+                <h5 class="card-title">
+                    {{ concert.artist.name if concert.artist else "Global Discovery" }}
+                    {% if not concert.artist %}
+                        <span class="badge bg-info text-dark">Trending</span>
+                    {% endif %}
+                </h5>
+                <h6 class="card-subtitle mb-2 text-muted">{{ concert.title }}</h6>
+                <p class="card-text">
+                    <strong>Date:</strong> {{ concert.date_str }}<br>
+                    <strong>Venue:</strong> {{ concert.venue }}, {{ concert.city }}<br>
+                    <strong>Source:</strong> {{ concert.source }}
+                </p>
+                <a href="{{ concert.url }}" target="_blank" class="card-link">View Details</a>
+            </div>
+            <div class="card-footer text-muted">
+                Found: {{ concert.found_at.strftime('%Y-%m-%d') }}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<hr class="my-5">
+
+<h3>System Logs</h3>
+<table class="table table-sm table-hover">
+    <thead>
+        <tr>
+            <th>Time</th>
+            <th>Level</th>
+            <th>Message</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for log in logs %}
+        <tr class="{{ 'table-danger' if log.level == 'ERROR' else '' }}">
+            <td>{{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+            <td>{{ log.level }}</td>
+            <td>{{ log.message }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Manage Artists</h2>
+
+<div class="card mb-4">
+    <div class="card-header">Add New Artist</div>
+    <div class="card-body">
+        <form method="POST">
+            <div class="mb-3">
+                <label for="name" class="form-label">Artist Name (Display)</label>
+                <input type="text" class="form-control" id="name" name="name" placeholder="e.g. Eason Chan" required>
+            </div>
+            <div class="mb-3">
+                <label for="keywords" class="form-label">Keywords (Comma separated)</label>
+                <input type="text" class="form-control" id="keywords" name="keywords" placeholder="e.g. Eason Chan,陈奕迅,陳奕迅" required>
+                <div class="form-text">Include both English and Chinese names for better results.</div>
+            </div>
+            <div class="mb-3">
+                <label for="regions" class="form-label">Regions (Comma separated)</label>
+                <input type="text" class="form-control" id="regions" name="regions" value="AU,CN,HK,TW,SEA" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Add Artist</button>
+        </form>
+    </div>
+</div>
+
+<h3>Monitored Artists</h3>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Keywords</th>
+            <th>Regions</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for artist in artists %}
+        <tr>
+            <td>{{ artist.name }}</td>
+            <td>{{ artist.keywords }}</td>
+            <td>{{ artist.regions }}</td>
+            <td>
+                <a href="{{ url_for('delete_artist', id=artist.id) }}" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">Delete</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
