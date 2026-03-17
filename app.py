@@ -81,5 +81,23 @@ def delete_artist(id):
     flash('Artist deleted.', 'success')
     return redirect(url_for('artists'))
 
+@app.route('/artist/edit/<int:id>', methods=['POST'])
+def edit_artist(id):
+    artist = Artist.query.get_or_404(id)
+    artist.name = request.form.get('name')
+    artist.keywords = request.form.get('keywords')
+    artist.regions = request.form.get('regions')
+    db.session.commit()
+    flash('Artist updated!', 'success')
+    return redirect(url_for('artists'))
+
+@app.route('/clear-mock-concerts')
+def clear_mock_concerts():
+    """Cleanup any old mock data from the database."""
+    count = Concert.query.filter(Concert.source.like('%Mock%')).delete(synchronize_session=False)
+    db.session.commit()
+    flash(f'Cleared {count} mock concerts from database.', 'info')
+    return redirect(url_for('index'))
+
 if __name__ == '__main__':
     app.run(debug=True, port=5001)

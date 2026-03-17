@@ -42,9 +42,42 @@
             <td>{{ artist.keywords }}</td>
             <td>{{ artist.regions }}</td>
             <td>
+                <button class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#editModal{{ artist.id }}">Edit</button>
                 <a href="{{ url_for('delete_artist', id=artist.id) }}" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">Delete</a>
             </td>
         </tr>
+
+        <!-- Edit Modal -->
+        <div class="modal fade" id="editModal{{ artist.id }}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <form action="{{ url_for('edit_artist', id=artist.id) }}" method="POST">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Edit Artist: {{ artist.name }}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label class="form-label">Artist Name</label>
+                                <input type="text" class="form-control" name="name" value="{{ artist.name }}" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Keywords</label>
+                                <input type="text" class="form-control" name="keywords" value="{{ artist.keywords }}" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Regions</label>
+                                <input type="text" class="form-control" name="regions" value="{{ artist.regions }}" required>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
         {% endfor %}
     </tbody>
 </table>
