@@ -1,21 +1,25 @@
-name: Concert Monitor Scrape
+name: Concert Monitor Scrape & Deploy
 
 on:
   schedule:
-    # Run twice per day (10:00 AM and 10:00 PM UTC)
     - cron: '0 10,22 * * *'
-  workflow_dispatch: # Allow manual trigger from the GitHub Actions tab
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
 
 jobs:
-  scrape:
+  scrape-and-deploy:
     runs-on: ubuntu-latest
     
     steps:
     - name: Checkout Code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: '3.10'
 
@@ -34,9 +38,18 @@ jobs:
         RECIPIENT_EMAIL: ${{ secrets.RECIPIENT_EMAIL }}
       run: python run_scrape.py
 
+    - name: Build Static Site
+      run: python build_static.py
+
     - name: Commit and Push DB Changes
       run: |
         git config --global user.name "GitHub Action"
         git config --global user.email "action@github.com"
         git add instance/concerts.db
         git diff --quiet && git diff --staged --quiet || (git commit -m "Update concert database [skip ci]" && git push)
+
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./dist
