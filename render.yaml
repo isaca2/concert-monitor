@@ -1,9 +1,0 @@
-services:
-  - type: web
-    name: concert-monitor-dashboard
-    env: python
-    buildCommand: pip install -r requirements.txt && python build_static.py
-    startCommand: python -m http.server $PORT --directory dist
-    envVars:
-      - key: PYTHON_VERSION
-        value: 3.10.12
